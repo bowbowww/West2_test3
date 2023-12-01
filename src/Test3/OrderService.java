@@ -80,9 +80,10 @@ public class OrderService {
                 System.out.println(" 商品id："+goods[i].getId()+" 商品名称："+goods[i].getName()+" 商品单价："+goods[i].getPrice());
             }
             return orders;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }finally{
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        } finally{
             JdbcUtil.release(conn, ps, rs);
         }
     }

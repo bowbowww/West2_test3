@@ -185,7 +185,8 @@ public class GoodsDaoOrder {
             ps = JdbcUtil.getPreparedStatement(s,conn);
             rs = ps.executeQuery();
             while (rs.next()) {
-                System.out.println("订单号："+rs.getInt("order_id")+" 下单时间："+rs.getDate("order_time")+" 订单价格："+rs.getString("order_price"));
+                System.out.print("订单信息为：");
+                System.out.println(" 订单号："+rs.getInt("order_id")+" 下单时间："+rs.getDate("order_time")+" 订单价格："+rs.getString("order_price"));
                 System.out.print("订单的商品信息为：");
                 System.out.println(" 商品id："+rs.getInt("good_id")+" 商品名称："+rs.getString("good_name")+" 商品单价："+rs.getInt("good_price"));
             }
