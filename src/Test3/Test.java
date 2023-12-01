@@ -9,15 +9,11 @@ public class Test {
     public static void main(String[] args) {
         OrderService orderService = new OrderService();
         Scanner sc = new Scanner(System.in);
-        Connection conn = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        l:
         while (true) {
             //从数据库中导出物品信息
-            ArrayList<Goods> list = orderService.outGoods();
+            ArrayList<Goods> list = orderService.outGoodsInfo();
             //从数据库中导出订单信息
-            ArrayList<Order> list1 = orderService.outOrders(list);
+            ArrayList<Order> orders = orderService.outOrdersInfo(list);
 
             System.out.println("请输入你想进行的操作：" + "\r\n"
                     + "1：插入商品" + "\r\n"
@@ -48,11 +44,11 @@ public class Test {
                 }
                 case 5 -> {
                     System.out.println("正在进行更新订单中价格");
-                    orderService.updatePriceInfo();
+                    orderService.updatePriceInfo(orders);
                 }
                 case 6 -> {
                     System.out.println("正在进行删除订单中商品");
-                    orderService.deleteOrderGoodInfo(list);
+                    orderService.deleteOrderGoodInfo(orders);
                 }
                 case 7 -> {
                     System.exit(0);

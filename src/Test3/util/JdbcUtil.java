@@ -46,7 +46,7 @@ public class JdbcUtil {
     }
 
     //释放连接
-    public static void release(Connection conn, PreparedStatement st, ResultSet rs) {
+    public static void release(Connection conn, PreparedStatement ps, ResultSet rs) {
         if(rs!=null){
             try {
                 rs.close();
@@ -54,9 +54,9 @@ public class JdbcUtil {
                 throw new RuntimeException(e);
             }
         }
-        if(st!=null){
+        if(ps!=null){
             try {
-                st.close();
+                ps.close();
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
@@ -74,12 +74,16 @@ public class JdbcUtil {
     }
 
     public static int executeUpdate(Connection conn, String sql, Object... params){
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        PreparedStatement ps = null;
+        try {
+            ps = conn.prepareStatement(sql);
             setParameters(ps, params);
             return ps.executeUpdate();
         }catch (Exception e) {
             e.printStackTrace();
             return Integer.parseInt(null);
+        }finally{
+            JdbcUtil.release(conn,ps,null);
         }
     }
 
@@ -93,7 +97,6 @@ public class JdbcUtil {
             return null;
         }
     }
-
 
     private static void setParameters(PreparedStatement pstmt, Object... params) {
         try{
