@@ -83,7 +83,7 @@ public class JdbcUtil {
             e.printStackTrace();
             return Integer.parseInt(null);
         }finally{
-            JdbcUtil.release(conn,ps,null);
+            JdbcUtil.release(null,ps,null);
         }
     }
 

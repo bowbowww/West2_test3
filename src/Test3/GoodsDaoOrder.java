@@ -85,9 +85,6 @@ public class GoodsDaoOrder {
                         order.setTime(orderTime);
                         order.setPrice(orderPrice);
                         orders.add(order);
-                        for (int i1 = 0; i1 < orders.size(); i1++) {
-                            System.out.println(orders.get(i1));
-                        }
                         order = new Order();
                         g = new ArrayList<>();
 
@@ -103,9 +100,7 @@ public class GoodsDaoOrder {
                         order.setTime(orderTime);
                         order.setPrice(orderPrice);
                         orders.add(order);
-                        for (int i1 = 0; i1 < orders.size(); i1++) {
-                            System.out.println(orders.get(i1));
-                        }
+
                     }
                 }
 
@@ -138,6 +133,7 @@ public class GoodsDaoOrder {
         ResultSet rs = null;
         try {
             conn = JdbcUtil.getConnection();
+            JdbcUtil.beginTransaction(conn);
             String s1 = "SELECT MAX(good_id) FROM goods";
             String s = "INSERT INTO goods (good_id,good_name,good_price) VALUES(?,?,?)";
             ps = JdbcUtil.getPreparedStatement(s, conn);
@@ -170,11 +166,13 @@ public class GoodsDaoOrder {
             System.out.println("导入成功");
             ps = null;
             System.out.println("导入商品信息为");
-            System.out.println(g.toString());
+            System.out.println(g);
             list.add(g);
+            JdbcUtil.commitTransaction(conn);
             return list;
         } catch (Exception e) {
             e.printStackTrace();
+            JdbcUtil.rollbackTransaction(conn);
             return null;
         } finally {
             JdbcUtil.release(conn, ps, rs);
@@ -196,6 +194,7 @@ public class GoodsDaoOrder {
         PreparedStatement ps = null;
         try {
             conn = JdbcUtil.getConnection();
+            JdbcUtil.beginTransaction(conn);
             String s = "delete from goods where good_name = ?";
             ps = JdbcUtil.getPreparedStatement(s, conn);
             int index = 0;
@@ -213,9 +212,11 @@ public class GoodsDaoOrder {
                 System.out.println("删除成功");
                 ps = null;
             }
+            JdbcUtil.commitTransaction(conn);
             return list;
         } catch (Exception e) {
             e.printStackTrace();
+            JdbcUtil.rollbackTransaction(conn);
             return null;
         } finally {
             JdbcUtil.release(conn, ps, null);
@@ -228,6 +229,7 @@ public class GoodsDaoOrder {
         try {
             Scanner sc = new Scanner(System.in);
             conn = JdbcUtil.getConnection();
+            JdbcUtil.beginTransaction(conn);
             Order order = new Order();
             ArrayList<Good> list1 = new ArrayList<>();
 
@@ -240,9 +242,9 @@ public class GoodsDaoOrder {
                 id = rs.getInt(1) + 1;
             }
 
+            System.out.println("请输入想要购入商品的名称");
             a:
             while (true) {
-                System.out.println("请输入想要购入商品的名称");
                 String name = sc.next();
                 Date currentTime = new Date();
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -251,8 +253,8 @@ public class GoodsDaoOrder {
 
                 boolean flog = false;
                 for (int i = 0; i < list.size(); i++) {
-                    if (list.get(i).getName().equals(name)) {
-                        Good g = list.get(i);
+                    Good g = list.get(i);
+                    if (g.getName().equals(name)) {
                         sum += g.getPrice();
                         list1.add(g);
                         flog = true;
@@ -267,7 +269,7 @@ public class GoodsDaoOrder {
 //将增添订单导入数据库中
                         java.sql.Date date = new java.sql.Date(currentTime.getTime());
                         String s = "INSERT INTO orders (`order_id`,`good_id`,`order_time`,`order_price`) \n" +
-                                "VALUES(" + id + "," + list.get(i).getId() + ",'" + date + "'," + sum + ")";
+                                "VALUES(" + id + "," + goods[i].getId() + ",'" + date + "'," + sum + ")";
                         ps = JdbcUtil.getPreparedStatement(s, conn);
                         ps.executeUpdate();
 
@@ -277,6 +279,7 @@ public class GoodsDaoOrder {
                     order.setPrice(sum);
                     order.setId(id);
                     orders.add(order);
+                    JdbcUtil.commitTransaction(conn);
                     return orders;
                 } else if (!flog) {
                     System.out.println("未找到您想要选购的商品，如需继续选购，请继续输入商品名称（输入 e 退出选购）");
@@ -284,6 +287,7 @@ public class GoodsDaoOrder {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            JdbcUtil.rollbackTransaction(conn);
             return null;
         } finally {
             JdbcUtil.release(conn, ps, null);
@@ -317,11 +321,15 @@ public class GoodsDaoOrder {
         Connection conn = null;
         try {
             conn = JdbcUtil.getConnection();
+            JdbcUtil.beginTransaction(conn);
             for (int i = 0; i < orders.size(); i++) {
                 int price = 0;
                 for (int j = 0; j < orders.size(); j++) {
                     if (orders.get(j).getId() == i) {
-                        price += orders.get(i).getGoods()[i].getPrice();
+                        Good[] goods = orders.get(j).getGoods();
+                        for (int i1 = 0; i1 < goods.length; i1++) {
+                            price += goods[i1].getPrice();
+                        }
                     }
                 }
                 for (int j = 0; j < orders.size(); j++) {
@@ -333,10 +341,14 @@ public class GoodsDaoOrder {
                 JdbcUtil.executeUpdate(conn, sql, price, i);
             }
             System.out.println("订单更改成功");
+            JdbcUtil.commitTransaction(conn);
             return orders;
         } catch (Exception e) {
             e.printStackTrace();
+            JdbcUtil.rollbackTransaction(conn);
             return null;
+        } finally {
+            JdbcUtil.release(conn, null, null);
         }
     }
 
@@ -344,6 +356,7 @@ public class GoodsDaoOrder {
         Connection conn = null;
         try {
             conn = JdbcUtil.getConnection();
+            JdbcUtil.beginTransaction(conn);
             for (int i = 0; i < orders.size(); i++) {
                 if (orders.get(i).getId() == id) {
                     if (orders.get(i).getGoods()[i].getName().equals(name)) {
@@ -355,10 +368,14 @@ public class GoodsDaoOrder {
             goodsDaoOrder.updatePrice(orders);
             String sql = "DELETE FROM orders WHERE `order_id` = ? AND `good_name` = ?";
             JdbcUtil.executeUpdate(conn, sql, id, name);
+            JdbcUtil.commitTransaction(conn);
             return orders;
         } catch (Exception e) {
             e.printStackTrace();
+            JdbcUtil.rollbackTransaction(conn);
             return null;
+        } finally {
+            JdbcUtil.release(conn, null, null);
         }
     }
 }
