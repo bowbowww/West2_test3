@@ -1,20 +1,16 @@
 package Test3;
 
-import Test3.util.JdbcUtil;
-
-import java.sql.*;
 import java.util.*;
 
 public class Test {
     public static void main(String[] args) {
         OrderService orderService = new OrderService();
         Scanner sc = new Scanner(System.in);
+        //从数据库中导出物品信息
+        ArrayList<Good> list = orderService.outGoodsInfo();
+        //从数据库中导出订单信息
+        ArrayList<Order> orders = orderService.outOrdersInfo(list);
         while (true) {
-            //从数据库中导出物品信息
-            ArrayList<Goods> list = orderService.outGoodsInfo();
-            //从数据库中导出订单信息
-            ArrayList<Order> orders = orderService.outOrdersInfo(list);
-
             System.out.println("请输入你想进行的操作：" + "\r\n"
                     + "1：插入商品" + "\r\n"
                     + "2: 删除商品" + "\r\n"
@@ -36,7 +32,7 @@ public class Test {
                 }
                 case 3 -> {
                     System.out.println("正在进行插入订单");
-                    orderService.insertOrderInfo(list);
+                    orderService.insertOrderInfo(list,orders);
                 }
                 case 4 -> {
                     System.out.println("正在进行查询订单");

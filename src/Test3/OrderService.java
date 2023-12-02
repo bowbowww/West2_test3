@@ -1,11 +1,5 @@
 package Test3;
 
-import Test3.util.JdbcUtil;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -14,17 +8,17 @@ public class OrderService {
     GoodsDaoOrder goodsDaoOrder = new GoodsDaoOrder();
 
     //从数据库中导出物品信息
-    public ArrayList<Goods> outGoodsInfo(){
+    public ArrayList<Good> outGoodsInfo(){
         return goodsDaoOrder.outGoods();
     }
 
     //从数据库中导出订单信息
-    public ArrayList<Order> outOrdersInfo(ArrayList<Goods> list){
+    public ArrayList<Order> outOrdersInfo(ArrayList<Good> list){
         return goodsDaoOrder.outOrders(list);
     }
 
     //插入商品功能
-    public ArrayList<Goods> insertGoodInfo(ArrayList<Goods> list){
+    public ArrayList<Good> insertGoodInfo(ArrayList<Good> list){
         Scanner sc = new Scanner(System.in);
         System.out.println("请输入导入商品的名称");
         String name = sc.next();
@@ -34,7 +28,7 @@ public class OrderService {
     }
 
     //删除商品
-    public ArrayList<Goods> deleteGoodInfo(ArrayList<Goods> list){
+    public ArrayList<Good> deleteGoodInfo(ArrayList<Good> list){
         Scanner sc = new Scanner(System.in);
         System.out.println("请输入想要删除商品的名称");
         String name = sc.next();
@@ -42,8 +36,8 @@ public class OrderService {
     }
 
     //插入订单
-    public Order insertOrderInfo(ArrayList<Goods> list){
-        return goodsDaoOrder.insertOrder(list);
+    public ArrayList<Order> insertOrderInfo(ArrayList<Good> list,ArrayList<Order>orders){
+        return goodsDaoOrder.insertOrder(list,orders);
     }
 
     //查询订单

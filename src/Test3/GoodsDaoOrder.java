@@ -14,18 +14,18 @@ import java.util.Scanner;
 public class GoodsDaoOrder {
 
     //从数据库中导出物品信息
-    public ArrayList<Goods> outGoods() {
+    public ArrayList<Good> outGoods() {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
             conn = JdbcUtil.getConnection();
-            ArrayList<Goods> goods = new ArrayList<>();
+            ArrayList<Good> goods = new ArrayList<>();
             String s = "SELECT `good_id`,`good_name`,`good_price` FROM goods";
             ps = JdbcUtil.getPreparedStatement(s, conn);
             rs = ps.executeQuery();
             while (rs.next()) {
-                Goods g = new Goods();
+                Good g = new Good();
                 g.setId(rs.getInt(1));
                 g.setName(rs.getString(2));
                 g.setPrice(rs.getInt(3));
@@ -41,7 +41,7 @@ public class GoodsDaoOrder {
     }
 
     //从数据库中导出订单信息**
-    public ArrayList<Order> outOrders(ArrayList<Goods> list) {
+    public ArrayList<Order> outOrders(ArrayList<Good> list) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -49,70 +49,79 @@ public class GoodsDaoOrder {
             conn = JdbcUtil.getConnection();
             String s = "SELECT `order_id`,`good_id`,`order_time`,`order_price` FROM orders";
             ps = JdbcUtil.getPreparedStatement(s, conn);
-
             rs = ps.executeQuery();
-            ArrayList<Goods> g = new ArrayList<>();
+            ArrayList<Good> g = new ArrayList<>();
             ArrayList<Order> orders = new ArrayList<>();
+            ArrayList<Object[]> l = new ArrayList<>();
             Order order = new Order();
-            int temp = 0;
-            int total = 0;
-            int sum = 0;
-            System.out.println("店铺的订单为：");
             while (rs.next()) {
-                int index = rs.getInt(1);
-                if (sum == 0) temp = index;
-                if (temp == index) {
-                    sum = 1;
-                    order.setId(index);
-                    int id = rs.getInt(2);
-                    for (int i = 0; i < list.size(); i++) {
-                        if (list.get(i).getId() == id) {
-                            Goods good = list.get(i);
-                            g.add(good);
-                        }
-                    }
-                    order.setTime(String.valueOf(rs.getDate(3)));
-                    order.setPrice(rs.getInt(4));
-                } else {
-                    Goods[] goods = new Goods[g.size()];
-                    for (int i = 0; i < goods.length; i++) {
-                        goods[i] = g.get(i);
-                    }
-                    order.setGoods(goods);
-                    orders.add(order);
-                    if (total == 0) {
-                        Order o = orders.get(0);
-                        System.out.println("订单号：" + o.getId() + " 下单时间：" + o.getTime() + " 订单价格：" + o.getPrice());
-                        System.out.print("订单的商品信息为：");
-                    }
-                    for (int i = total; i < goods.length; i++) {
-                        System.out.print("{ 商品id：" + goods[i].getId() + " 商品名称：" + goods[i].getName() + " 商品单价：" + goods[i].getPrice()+" }");
-                    }
-                    total = 1;
-                    g = new ArrayList<>();
-                    orders = new ArrayList<>();
-                    order = new Order();
-                    index = rs.getInt(1);
-                    order.setId(index);
-                    int id = rs.getInt(2);
-                    for (int i = 0; i < list.size(); i++) {
-                        if (list.get(i).getId() == id) {
-                            Goods good = list.get(i);
-                            g.add(good);
-                        }
-                    }
-                    order.setTime(String.valueOf(rs.getDate(3)));
-                    order.setPrice(rs.getInt(4));
-                    orders.add(order);
-                    Order o = orders.get(0);
-                    System.out.println("");
-                    System.out.println(" 订单号：" + o.getId() + " 下单时间：" + o.getTime() + " 订单价格：" + o.getPrice());
-                    System.out.print("订单的商品信息为：");
-                    System.out.print("{ 商品id：" + goods[0].getId() + " 商品名称：" + goods[0].getName() + " 商品单价：" + goods[0].getPrice()+"} ");
-                    temp = index;
-                }
+                Object[] object = new Object[4];
+                object[0] = rs.getInt(1);
+                object[1] = rs.getInt(2);
+                object[2] = String.valueOf(rs.getDate(3));
+                object[3] = rs.getInt(4);
+                l.add(object);
             }
-            System.out.println("");
+            for (int i = 0; i < l.size(); i++) {
+                int orderId = (int) l.get(i)[0];
+                int goodId = (int) l.get(i)[1];
+                String orderTime = (String) l.get(i)[2];
+                int orderPrice = (int) l.get(i)[3];
+                //存储商品进入g
+                for (int i1 = 0; i1 < list.size(); i1++) {
+                    if (goodId == list.get(i1).getId()) {
+                        g.add(list.get(i1));
+                    }
+                }
+                //如果前后id不同，说明下一次换了其他订单
+                if (i != l.size() - 1) {
+                    if (orderId != (int) l.get(i + 1)[0]) {
+                        Good[] goods = new Good[g.size()];
+                        for (int i1 = 0; i1 < goods.length; i1++) {
+                            goods[i1] = g.get(i1);
+                        }
+                        order.setId(orderId);
+                        order.setGoods(goods);
+                        order.setTime(orderTime);
+                        order.setPrice(orderPrice);
+                        orders.add(order);
+                        for (int i1 = 0; i1 < orders.size(); i1++) {
+                            System.out.println(orders.get(i1));
+                        }
+                        order = new Order();
+                        g = new ArrayList<>();
+
+                    }
+                }else {
+                    if (orderId != (int) l.get(i - 1)[0]) {
+                        Good[] goods = new Good[g.size()];
+                        for (int i1 = 0; i1 < goods.length; i1++) {
+                            goods[i1] = g.get(i1);
+                        }
+                        order.setId(orderId);
+                        order.setGoods(goods);
+                        order.setTime(orderTime);
+                        order.setPrice(orderPrice);
+                        orders.add(order);
+                        for (int i1 = 0; i1 < orders.size(); i1++) {
+                            System.out.println(orders.get(i1));
+                        }
+                    }
+                }
+
+            }
+
+            for (int i = 0; i < orders.size(); i++) {
+                Order order1 = orders.get(i);
+                Good[] goods = order1.getGoods();
+                System.out.println("当前店铺订单为：");
+                System.out.println("订单id：" + order1.getId() + " 订单价格：" + order1.getPrice() + " 订单时间：" + order1.getTime());
+                System.out.println("订单中商品信息为：");
+                for (int i1 = 0; i1 < goods.length; i1++) {
+                    System.out.print("{ 商品id：" + goods[i1].getId() + " 商品名称：" + goods[i1].getName() + " 商品价格：" + goods[i1].getPrice() + " } ");
+                }
+                System.out.println("");
+            }
             return orders;
         } catch (Exception e) {
             e.printStackTrace();
@@ -122,7 +131,7 @@ public class GoodsDaoOrder {
         }
     }
 
-    public ArrayList<Goods> insertGood(ArrayList<Goods> list, String name, int price) {
+    public ArrayList<Good> insertGood(ArrayList<Good> list, String name, int price) {
         Connection conn = null;
         PreparedStatement ps = null;
         PreparedStatement ps1 = null;
@@ -141,7 +150,7 @@ public class GoodsDaoOrder {
             }
             ps.setInt(1, id);
             Scanner sc = new Scanner(System.in);
-            Goods g = new Goods();
+            Good g = new Good();
             System.out.println("导入商品名称为" + name);
             ps.setString(2, name);
             g.setName(name);
@@ -182,7 +191,7 @@ public class GoodsDaoOrder {
 
     }
 
-    public ArrayList<Goods> deleteGood(ArrayList<Goods> list, String name) {
+    public ArrayList<Good> deleteGood(ArrayList<Good> list, String name) {
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -213,14 +222,14 @@ public class GoodsDaoOrder {
         }
     }
 
-    public Order insertOrder(ArrayList<Goods> list) {
+    public ArrayList<Order> insertOrder(ArrayList<Good> list, ArrayList<Order> orders) {
         Connection conn = null;
         PreparedStatement ps = null;
         try {
             Scanner sc = new Scanner(System.in);
             conn = JdbcUtil.getConnection();
             Order order = new Order();
-            ArrayList<Goods> list1 = new ArrayList<>();
+            ArrayList<Good> list1 = new ArrayList<>();
 
             //获取最大订单号id
             int sum = 0, id = 0;
@@ -243,7 +252,7 @@ public class GoodsDaoOrder {
                 boolean flog = false;
                 for (int i = 0; i < list.size(); i++) {
                     if (list.get(i).getName().equals(name)) {
-                        Goods g = list.get(i);
+                        Good g = list.get(i);
                         sum += g.getPrice();
                         list1.add(g);
                         flog = true;
@@ -252,7 +261,7 @@ public class GoodsDaoOrder {
                     }
                 }
                 if (name.equals("e")) {
-                    Goods[] goods = new Goods[list1.size()];
+                    Good[] goods = new Good[list1.size()];
                     for (int i = 0; i < list1.size(); i++) {
                         goods[i] = list1.get(i);
 //将增添订单导入数据库中
@@ -267,7 +276,8 @@ public class GoodsDaoOrder {
                     order.setTime(dateString);
                     order.setPrice(sum);
                     order.setId(id);
-                    return order;
+                    orders.add(order);
+                    return orders;
                 } else if (!flog) {
                     System.out.println("未找到您想要选购的商品，如需继续选购，请继续输入商品名称（输入 e 退出选购）");
                 }

@@ -1,17 +1,15 @@
 package Test3;
 
-import java.util.Date;
-
 public class Order {
     private int id;
-    private Goods[]goods;
+    private Good[]goods;
     private String time;
     private int price;
 
     public Order() {
     }
 
-    public Order(int id, Goods[] goods, String time, int price) {
+    public Order(int id, Good[] goods, String time, int price) {
         this.id = id;
         this.goods = goods;
         this.time = time;
@@ -26,11 +24,11 @@ public class Order {
         this.id = id;
     }
 
-    public Goods[] getGoods() {
+    public Good[] getGoods() {
         return goods;
     }
 
-    public void setGoods(Goods[] goods) {
+    public void setGoods(Good[] goods) {
         this.goods = goods;
     }
 

@@ -1,14 +1,14 @@
 package Test3;
 
-public class Goods {
+public class Good {
     private int id;
     private String name;
     private int price;
 
-    public Goods() {
+    public Good() {
     }
 
-    public Goods(int id, String name, int price) {
+    public Good(int id, String name, int price) {
         this.id = id;
         this.name = name;
         this.price = price;
