@@ -41,8 +41,8 @@ public class JdbcUtil {
             return conn.prepareStatement(sql);
         } catch (Exception e) {
             e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     //释放连接

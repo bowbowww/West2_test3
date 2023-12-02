@@ -43,11 +43,7 @@ public class OrderService {
 
     //插入订单
     public Order insertOrderInfo(ArrayList<Goods> list){
-        Scanner sc = new Scanner(System.in);
-        System.out.println("请输入想要购入商品的名称");
-        String name = sc.next();
-        goodsDaoOrder.insertOrder(list,name);
-        return goodsDaoOrder.insertOrder(list,name);
+        return goodsDaoOrder.insertOrder(list);
     }
 
     //查询订单
