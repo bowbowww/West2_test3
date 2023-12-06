@@ -25,7 +25,7 @@ public class JdbcUtil {
         }
     }
 
-    //获取链接
+    /*获取链接*/
     public static Connection getConnection() {
         try{
             return DriverManager.getConnection(url,username,password);
@@ -35,7 +35,7 @@ public class JdbcUtil {
         }
     }
 
-    //创建sql命令
+    /*创建sql命令*/
     public static PreparedStatement getPreparedStatement(String sql,Connection conn) {
         try{
             return conn.prepareStatement(sql);
@@ -45,7 +45,7 @@ public class JdbcUtil {
         return null;
     }
 
-    //释放连接
+    /*释放连接*/
     public static void release(Connection conn, PreparedStatement ps, ResultSet rs) {
         if(rs!=null){
             try {
@@ -73,6 +73,7 @@ public class JdbcUtil {
 
     }
 
+    /*更新*/
     public static int executeUpdate(Connection conn, String sql, Object... params){
         PreparedStatement ps = null;
         try {
@@ -87,6 +88,7 @@ public class JdbcUtil {
         }
     }
 
+    /*查询*/
     public static ResultSet executeQuery(Connection conn, String sql, Object... params) {
         try{
             PreparedStatement pstmt = conn.prepareStatement(sql);
@@ -98,6 +100,7 @@ public class JdbcUtil {
         }
     }
 
+    /*在解决SQL注入问题上,导入PreparedStatement的参数*/
     private static void setParameters(PreparedStatement pstmt, Object... params) {
         try{
             for (int i = 0; i < params.length; i++) {
@@ -108,6 +111,7 @@ public class JdbcUtil {
         }
     }
 
+    /*开启事务*/
     public static void beginTransaction(Connection conn) {
         try {
             conn.setAutoCommit(false);
@@ -116,6 +120,7 @@ public class JdbcUtil {
         }
     }
 
+    /*提交事务*/
     public static void commitTransaction(Connection conn) {
         try {
             conn.commit();
@@ -125,6 +130,7 @@ public class JdbcUtil {
         }
     }
 
+    /*回滚*/
     public static void rollbackTransaction(Connection conn) {
         try {
             conn.rollback();
