@@ -40,18 +40,29 @@ public class OrderService {
         return goodsDaoOrder.insertOrder(list,orders);
     }
 
-    //查询订单
+    //查询单个订单
+    public void queryOneOrderInfo(){
+        Scanner sc = new Scanner(System.in);
+        int id = sc.nextInt();
+        goodsDaoOrder.queryOneOrder(id);
+    }
+
+    //查询全部订单
     public void queryOrderInfo(){
         goodsDaoOrder.queryOrder();
     }
 
-    //更新订单中价格
-    public ArrayList<Order> updatePriceInfo(ArrayList<Order>orders) {
+    //增添某订单中的商品
+    public ArrayList<Order> insertOrderGoodInfo(ArrayList<Order> orders, ArrayList<Good> goods){
         Scanner sc = new Scanner(System.in);
-        return goodsDaoOrder.updatePrice(orders);
+        System.out.println("请输入想要修改的订单id");
+        int id = sc.nextInt();
+        System.out.println("请输入想要增添的商品名称");
+        String name = sc.next();
+        return goodsDaoOrder.insertOrderGood(orders,goods,id,name);
     }
 
-    //删除订单中商品
+    //删除某订单中商品
     public void deleteOrderGoodInfo(ArrayList<Order> orders) {
         Scanner sc = new Scanner(System.in);
         System.out.println("请输入想要删除订单的id");
@@ -60,5 +71,13 @@ public class OrderService {
         String name = sc.next();
         goodsDaoOrder.deleteOrderGood(orders,id,name);
     }
+
+    //更新订单中价格
+    public ArrayList<Order> updatePriceInfo(ArrayList<Order>orders) {
+        Scanner sc = new Scanner(System.in);
+        return goodsDaoOrder.updatePrice(orders);
+    }
+
+
 
 }

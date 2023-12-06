@@ -46,14 +46,14 @@ public class GoodsDaoOrder {
         }
     }
 
-    //从数据库中导出订单信息**
+    //从数据库中导出订单信息
     public ArrayList<Order> outOrders(ArrayList<Good> list) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
             conn = JdbcUtil.getConnection();
-            String s = "SELECT `order_id`,`good_id`,`order_time`,`order_price` FROM orders";
+            String s = "SELECT `order_id`,`good_id`,`order_time`,`order_price` FROM orders ORDER BY order_id ASC";
             ps = JdbcUtil.getPreparedStatement(s, conn);
             rs = ps.executeQuery();
             ArrayList<Good> g = new ArrayList<>();
@@ -73,7 +73,7 @@ public class GoodsDaoOrder {
                 object[3] = rs.getInt(4);
                 l.add(object);
             }
-
+            System.out.println(l.size());
             /*导入good类实例化对象到order类的实例化对象中,
             再将其导入Order类的动态数组中*/
             for (int i = 0; i < l.size(); i++) {
@@ -88,7 +88,6 @@ public class GoodsDaoOrder {
                         g.add(list.get(i1));
                     }
                 }
-
                 /*
                 如果前后id不同，说明下一次循环时,商品来自其他的订单
                 (为了防止超出数组长度范围,分两种情况)
@@ -114,7 +113,6 @@ public class GoodsDaoOrder {
 
                     }
                 } else {
-                    if (orderId != (int) l.get(i - 1)[0]) {
                         Good[] goods = new Good[g.size()];
                         for (int i1 = 0; i1 < goods.length; i1++) {
                             goods[i1] = g.get(i1);
@@ -124,10 +122,7 @@ public class GoodsDaoOrder {
                         order.setTime(orderTime);
                         order.setPrice(orderPrice);
                         orders.add(order);
-
-                    }
                 }
-
             }
             //打印
             for (int i = 0; i < orders.size(); i++) {
@@ -324,6 +319,31 @@ public class GoodsDaoOrder {
         }
     }
 
+    public void queryOneOrder(int id){
+        Connection conn = null;
+        ResultSet rs = null;
+        try {
+            conn = JdbcUtil.getConnection();
+            /*通过联表查询的方法,同时获取全部的订单和商品的信息*/
+            String s = "SELECT `order_id`,o.good_id,`good_name`,`good_price`,`order_time`,`order_price`\n" +
+                    "from orders as o\n" +
+                    "left join goods as g\n" +
+                    "on o.good_id = g.good_id" +
+                    "where order_id = ?";
+            rs = JdbcUtil.executeQuery(conn, s,id);
+            while(rs.next()){
+                System.out.print("订单信息为：");
+                System.out.println(" 订单号：" + rs.getInt("order_id") + " 下单时间：" + rs.getDate("order_time") + " 订单价格：" + rs.getString("order_price"));
+                System.out.print("订单的商品信息为：");
+                System.out.println(" 商品id：" + rs.getInt("good_id") + " 商品名称：" + rs.getString("good_name") + " 商品单价：" + rs.getInt("good_price"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            JdbcUtil.release(conn, null, rs);
+        }
+    }
+
     public void queryOrder() {
         Connection conn = null;
         ResultSet rs = null;
@@ -346,6 +366,75 @@ public class GoodsDaoOrder {
             e.printStackTrace();
         } finally {
             JdbcUtil.release(conn, null, rs);
+        }
+    }
+
+    public ArrayList<Order> insertOrderGood(ArrayList<Order> orders, ArrayList<Good> goods,int id, String name){
+        Connection conn = null;
+        try {
+            conn = JdbcUtil.getConnection();
+            JdbcUtil.beginTransaction(conn);
+            /*在商品堆中找到商品*/
+            Good good = new Good();
+            Order order = new Order();
+            for (int i = 0; i < goods.size(); i++) {
+                if (goods.get(i).getName().equals(name)) {
+                        good = goods.get(i);
+                }
+            }
+            /*在订单堆中找到订单*/
+            for (int i = 0; i < orders.size(); i++) {
+                if(orders.get(i).getId() == id){
+                    order = orders.get(i);
+                }
+            }
+            int goodId = good.getId();
+            String time = order.getTime();
+            SimpleDateFormat df=new SimpleDateFormat("yyyy-MM-dd");
+            Date orderTime = df.parse(time);
+            GoodsDaoOrder goodsDaoOrder = new GoodsDaoOrder();
+            /*添加完订单中的商品后,更新价格*/
+            String sql = "INSERT INTO `orders`(order_id,good_id,order_time,order_price,id)\n" +
+                    "SELECT ?,?,"+"'"+"?"+"'"+",0,MAX(id)+1\n" +
+                    "FROM `orders`";
+            JdbcUtil.executeUpdate(conn, sql, id, goodId, orderTime);
+            JdbcUtil.commitTransaction(conn);
+            goodsDaoOrder.updatePrice(orders);
+            return orders;
+        } catch (Exception e) {
+            e.printStackTrace();
+            JdbcUtil.rollbackTransaction(conn);
+            return null;
+        } finally {
+            JdbcUtil.release(conn, null, null);
+        }
+    }
+
+    public ArrayList<Order> deleteOrderGood(ArrayList<Order> orders, int id, String name) {
+        Connection conn = null;
+        try {
+            conn = JdbcUtil.getConnection();
+            JdbcUtil.beginTransaction(conn);
+            for (int i = 0; i < orders.size(); i++) {
+                if (orders.get(i).getId() == id) {
+                    if (orders.get(i).getGoods()[i].getName().equals(name)) {
+                        orders.remove(i);
+                    }
+                }
+            }
+            GoodsDaoOrder goodsDaoOrder = new GoodsDaoOrder();
+            /*删除完订单中的商品后,更新价格*/
+            goodsDaoOrder.updatePrice(orders);
+            String sql = "DELETE FROM orders WHERE `order_id` = ? AND `good_name` = ?";
+            JdbcUtil.executeUpdate(conn, sql, id, name);
+            JdbcUtil.commitTransaction(conn);
+            return orders;
+        } catch (Exception e) {
+            e.printStackTrace();
+            JdbcUtil.rollbackTransaction(conn);
+            return null;
+        } finally {
+            JdbcUtil.release(conn, null, null);
         }
     }
 
@@ -387,31 +476,4 @@ public class GoodsDaoOrder {
         }
     }
 
-    public ArrayList<Order> deleteOrderGood(ArrayList<Order> orders, int id, String name) {
-        Connection conn = null;
-        try {
-            conn = JdbcUtil.getConnection();
-            JdbcUtil.beginTransaction(conn);
-            for (int i = 0; i < orders.size(); i++) {
-                if (orders.get(i).getId() == id) {
-                    if (orders.get(i).getGoods()[i].getName().equals(name)) {
-                        orders.remove(i);
-                    }
-                }
-            }
-            GoodsDaoOrder goodsDaoOrder = new GoodsDaoOrder();
-            /*删除完订单中的商品后,更新价格*/
-            goodsDaoOrder.updatePrice(orders);
-            String sql = "DELETE FROM orders WHERE `order_id` = ? AND `good_name` = ?";
-            JdbcUtil.executeUpdate(conn, sql, id, name);
-            JdbcUtil.commitTransaction(conn);
-            return orders;
-        } catch (Exception e) {
-            e.printStackTrace();
-            JdbcUtil.rollbackTransaction(conn);
-            return null;
-        } finally {
-            JdbcUtil.release(conn, null, null);
-        }
-    }
 }
