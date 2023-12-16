@@ -19,7 +19,7 @@ public class Test {
                     + "5: 查询全部订单" + "\r\n"
                     + "6: 增加订单中商品" + "\r\n"
                     + "7: 删除订单中商品" + "\r\n"
-                    + "8: 更新订单中价格" + "\r\n"
+                    + "8: 查询所有商品" + "\r\n"
                     + "9: 退出");
 
             int a = sc.nextInt();
@@ -50,11 +50,11 @@ public class Test {
                 }
                 case 7 -> {
                     System.out.println("正在进行删除订单中商品");
-                    orderService.deleteOrderGoodInfo(orders);
+                    orderService.deleteOrderGoodInfo(orders,goods);
                 }
                 case 8 -> {
-                    System.out.println("正在进行更新订单中价格");
-                    orderService.updatePriceInfo(orders);
+                    System.out.println("正在进行查询所有商品");
+                    orderService.queryGoodInfo();
                 }
                 case 9 -> {
                     System.exit(0);

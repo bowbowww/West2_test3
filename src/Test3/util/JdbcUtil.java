@@ -82,7 +82,7 @@ public class JdbcUtil {
             return ps.executeUpdate();
         }catch (Exception e) {
             e.printStackTrace();
-            return Integer.parseInt(null);
+            return 0;
         }finally{
             JdbcUtil.release(null,ps,null);
         }
