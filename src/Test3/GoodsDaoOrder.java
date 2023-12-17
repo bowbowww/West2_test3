@@ -152,6 +152,7 @@ public class GoodsDaoOrder {
         ResultSet rs = null;
         try {
             conn = JdbcUtil.getConnection();
+            JdbcUtil.beginTransaction(conn);
             boolean flag = false;
             int index = -1;
             for (int i = 0; i < goods.size(); i++) {
@@ -175,6 +176,7 @@ public class GoodsDaoOrder {
                 ps = JdbcUtil.getPreparedStatement(s, conn);
                 ps.executeUpdate();
                 System.out.println("更新库存成功");
+                JdbcUtil.commitTransaction(conn);
                 return goods;
             } else {
                 Scanner sc = new Scanner(System.in);
@@ -219,10 +221,12 @@ public class GoodsDaoOrder {
                 System.out.println("导入商品信息为");
                 System.out.println(g);
                 goods.add(g);
+                JdbcUtil.commitTransaction(conn);
                 return goods;
             }
         } catch (Exception e) {
             e.printStackTrace();
+            JdbcUtil.rollbackTransaction(conn);
             return null;
         } finally {
             JdbcUtil.release(conn, ps, rs);
@@ -243,6 +247,7 @@ public class GoodsDaoOrder {
         PreparedStatement ps = null;
         try {
             conn = JdbcUtil.getConnection();
+            JdbcUtil.beginTransaction(conn);
             String s = "UPDATE goods SET good_number = 0 WHERE good_name = ?";
             ps = JdbcUtil.getPreparedStatement(s, conn);
             int index = 0;
@@ -261,21 +266,24 @@ public class GoodsDaoOrder {
                 System.out.println("清除成功");
                 ps = null;
             }
+            JdbcUtil.commitTransaction(conn);
             return list;
         } catch (Exception e) {
             e.printStackTrace();
+            JdbcUtil.rollbackTransaction(conn);
             return null;
         } finally {
             JdbcUtil.release(conn, ps, null);
         }
     }
 
-    public ArrayList<Order> insertOrder(ArrayList<Good> list, ArrayList<Order> orders) {
+    public ArrayList<Order> insertOrder(ArrayList<Good> list, ArrayList<Order> orders)  {
         Connection conn = null;
         PreparedStatement ps = null;
         try {
             Scanner sc = new Scanner(System.in);
             conn = JdbcUtil.getConnection();
+            JdbcUtil.beginTransaction(conn);
             Order order = new Order();
             ArrayList<Good> list1 = new ArrayList<>();
 
@@ -334,6 +342,7 @@ public class GoodsDaoOrder {
                     order.setPrice(sum);
                     order.setId(id);
                     orders.add(order);
+                    JdbcUtil.commitTransaction(conn);
                     return orders;
                 } else if (!flog) {
                     System.out.println("未找到您想要选购的商品，如需继续选购，请继续输入商品名称（输入 e 退出选购）");
@@ -341,6 +350,7 @@ public class GoodsDaoOrder {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            JdbcUtil.rollbackTransaction(conn);
             return null;
         } finally {
             JdbcUtil.release(conn, ps, null);
@@ -452,6 +462,7 @@ public class GoodsDaoOrder {
                     orders.get(i).setGoods(goods2);
                 }
             }
+            JdbcUtil.beginTransaction(conn);
             GoodsDaoOrder goodsDaoOrder = new GoodsDaoOrder();
             /*添加完订单中的商品后,更新价格*/
             String s = "UPDATE goods SET good_number = good_number - 1 WHERE good_name = " + '"' + name + '"';
@@ -460,9 +471,11 @@ public class GoodsDaoOrder {
             JdbcUtil.executeUpdate(conn, sql, id, goodId, time);
             JdbcUtil.executeUpdate(conn, s);
             goodsDaoOrder.updatePrice(orders, goods);
+            JdbcUtil.commitTransaction(conn);
             return orders;
         } catch (Exception e) {
             e.printStackTrace();
+            JdbcUtil.rollbackTransaction(conn);
             return null;
         } finally {
             JdbcUtil.release(conn, null, null);
@@ -474,6 +487,7 @@ public class GoodsDaoOrder {
         try {
             boolean flag = false, flag1 = false;
             conn = JdbcUtil.getConnection();
+            JdbcUtil.beginTransaction(conn);
             Order order;
             Good[] goods1 = new Good[0];
             for (int i = 0; i < orders.size(); i++) {
@@ -526,9 +540,11 @@ public class GoodsDaoOrder {
             String sql = "DELETE FROM orders WHERE `order_id` = ? AND `good_id` = ?";
             JdbcUtil.executeUpdate(conn, sql, id, index);
             JdbcUtil.executeUpdate(conn, s);
+            JdbcUtil.commitTransaction(conn);
             return orders;
         } catch (Exception e) {
             e.printStackTrace();
+            JdbcUtil.rollbackTransaction(conn);
             return null;
         } finally {
             JdbcUtil.release(conn, null, null);
@@ -558,6 +574,7 @@ public class GoodsDaoOrder {
         Connection conn = null;
         try {
             conn = JdbcUtil.getConnection();
+            JdbcUtil.commitTransaction(conn);
             for (int i = 1; i <= orders.size(); i++) {
                 int price = 0;
                 for (int j = 0; j < orders.size(); j++) {
@@ -588,9 +605,11 @@ public class GoodsDaoOrder {
                 JdbcUtil.executeUpdate(conn, sql, price, i);
             }
             System.out.println("订单更改成功");
+            JdbcUtil.commitTransaction(conn);
             return orders;
         } catch (Exception e) {
             e.printStackTrace();
+            JdbcUtil.rollbackTransaction(conn);
             return null;
         } finally {
             JdbcUtil.release(conn, null, null);
