@@ -79,10 +79,10 @@ public class OrderService {
     }
 
     //更新订单中价格
-    public ArrayList<Order> updatePriceInfo(ArrayList<Order>orders, ArrayList<Good> goods) {
+   /* public ArrayList<Order> updatePriceInfo(ArrayList<Order>orders, ArrayList<Good> goods) {
         Scanner sc = new Scanner(System.in);
-        return goodsDaoOrder.updatePrice(orders,goods);
-    }
+        return goodsDaoOrder.updatePrice(orders,goods,conn);
+    }*/
 
 
 

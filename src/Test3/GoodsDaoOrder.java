@@ -411,6 +411,7 @@ public class GoodsDaoOrder {
         Connection conn = null;
         try {
             conn = JdbcUtil.getConnection();
+            JdbcUtil.beginTransaction(conn);
             /*在商品堆中找到商品*/
             boolean flag = false, flag1 = false, flag2 = false;
             Good good = new Good();
@@ -421,6 +422,7 @@ public class GoodsDaoOrder {
                     flag = true;
                     if (goods.get(i).getNumber() != 0) {
                         flag2 = true;
+                        break;
                     }
                 }
 
@@ -434,6 +436,7 @@ public class GoodsDaoOrder {
                 if (orders.get(i).getId() == id) {
                     order = orders.get(i);
                     flag1 = true;
+                    break;
                 }
             }
             if (!flag1) {
@@ -462,7 +465,6 @@ public class GoodsDaoOrder {
                     orders.get(i).setGoods(goods2);
                 }
             }
-            JdbcUtil.beginTransaction(conn);
             GoodsDaoOrder goodsDaoOrder = new GoodsDaoOrder();
             /*添加完订单中的商品后,更新价格*/
             String s = "UPDATE goods SET good_number = good_number - 1 WHERE good_name = " + '"' + name + '"';
@@ -470,7 +472,7 @@ public class GoodsDaoOrder {
                     "values (?,?,?,0)";
             JdbcUtil.executeUpdate(conn, sql, id, goodId, time);
             JdbcUtil.executeUpdate(conn, s);
-            goodsDaoOrder.updatePrice(orders, goods);
+            goodsDaoOrder.updatePrice(orders, goods,conn);
             JdbcUtil.commitTransaction(conn);
             return orders;
         } catch (Exception e) {
@@ -481,6 +483,7 @@ public class GoodsDaoOrder {
             JdbcUtil.release(conn, null, null);
         }
     }
+
 
     public ArrayList<Order> returnOrderGood(ArrayList<Order> orders, ArrayList<Good> goods, int id, String name) {
         Connection conn = null;
@@ -529,7 +532,8 @@ public class GoodsDaoOrder {
             }
             GoodsDaoOrder goodsDaoOrder = new GoodsDaoOrder();
             /*删除完订单中的商品后,更新价格*/
-            goodsDaoOrder.updatePrice(orders, goods);
+//            TODO 这里加了个参数
+            goodsDaoOrder.updatePrice(orders, goods,conn);
             int index = 0;
             for (int i = 0; i < goods.size(); i++) {
                 if (goods.get(i).getName().equals(name)) {
@@ -570,11 +574,11 @@ public class GoodsDaoOrder {
         }
     }
 
-    public ArrayList<Order> updatePrice(ArrayList<Order> orders, ArrayList<Good> good) {
-        Connection conn = null;
+    public ArrayList<Order> updatePrice(ArrayList<Order> orders, ArrayList<Good> good,Connection conn) {
+//        Connection conn = null;
         try {
-            conn = JdbcUtil.getConnection();
-            JdbcUtil.commitTransaction(conn);
+//            conn = JdbcUtil.getConnection();
+
             for (int i = 1; i <= orders.size(); i++) {
                 int price = 0;
                 for (int j = 0; j < orders.size(); j++) {
@@ -605,15 +609,13 @@ public class GoodsDaoOrder {
                 JdbcUtil.executeUpdate(conn, sql, price, i);
             }
             System.out.println("订单更改成功");
-            JdbcUtil.commitTransaction(conn);
             return orders;
         } catch (Exception e) {
             e.printStackTrace();
-            JdbcUtil.rollbackTransaction(conn);
             return null;
-        } finally {
+        }/* finally {
             JdbcUtil.release(conn, null, null);
-        }
+        }*/
     }
 
 }
