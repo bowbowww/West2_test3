@@ -24,7 +24,9 @@ public class OrderService {
         String name = sc.next();
         System.out.println("请输入导入商品的价格 ");
         int price = sc.nextInt();
-        return goodsDaoOrder.insertGood(list,name,price);
+        System.out.println("请输入商品库存");
+        int number = sc.nextInt();
+        return goodsDaoOrder.insertGood(list,name,price,number);
     }
 
     //删除商品
@@ -64,13 +66,13 @@ public class OrderService {
     }
 
     //删除某订单中商品
-    public void deleteOrderGoodInfo(ArrayList<Order> orders, ArrayList<Good> goods) {
+    public void returnOrderGoodInfo(ArrayList<Order> orders, ArrayList<Good> goods) {
         Scanner sc = new Scanner(System.in);
         System.out.println("请输入想要删除订单的id");
         int id = sc.nextInt();
         System.out.println("请输入想要删除的商品名称");
         String name = sc.next();
-        goodsDaoOrder.deleteOrderGood(orders,goods,id,name);
+        goodsDaoOrder.returnOrderGood(orders,goods,id,name);
     }
 
     //查询所有商品信息

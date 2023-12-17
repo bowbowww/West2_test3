@@ -25,14 +25,17 @@ public class Test {
             int a = sc.nextInt();
             switch (a) {
                 case 1 -> {
+                    goods = orderService.outGoodsInfo();
                     System.out.println("正在进行插入商品");
                     orderService.insertGoodInfo(goods);
                 }
                 case 2 -> {
+                    goods = orderService.outGoodsInfo();
                     System.out.println("正在进行删除商品");
                     orderService.deleteGoodInfo(goods);
                 }
                 case 3 -> {
+                    goods = orderService.outGoodsInfo();
                     System.out.println("正在进行插入订单");
                     orderService.insertOrderInfo(goods,orders);
                 }
@@ -45,12 +48,14 @@ public class Test {
                     orderService.queryOrderInfo();
                 }
                 case 6 -> {
+                    goods = orderService.outGoodsInfo();
                     System.out.println("正在进行增加订单中商品");
                     orderService.insertOrderGoodInfo(orders,goods);
                 }
                 case 7 -> {
+                    goods = orderService.outGoodsInfo();
                     System.out.println("正在进行删除订单中商品");
-                    orderService.deleteOrderGoodInfo(orders,goods);
+                    orderService.returnOrderGoodInfo(orders,goods);
                 }
                 case 8 -> {
                     System.out.println("正在进行查询所有商品");
