@@ -162,10 +162,13 @@ public class GoodsDaoOrder {
             }
             /*判断商品堆中是否存在该商品*/
             if (flag) {
+                int num = 0;
                 String ss = "SELECT good_number FROM goods WHERE good_name = " + '"' + name + '"';
                 ps1 = JdbcUtil.getPreparedStatement(ss, conn);
                 rs = ps1.executeQuery();
-                int num = rs.getInt("good_number");
+                while(rs.next()){
+                    num = rs.getInt("good_number");
+                }
                 number += num;
                 goods.get(index).setNumber(number);
                 String s = "UPDATE goods SET good_number = " + number + " where good_name = " + '"' + name + '"';
