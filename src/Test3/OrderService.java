@@ -22,11 +22,9 @@ public class OrderService {
         Scanner sc = new Scanner(System.in);
         System.out.println("请输入导入商品的名称");
         String name = sc.next();
-        System.out.println("请输入导入商品的价格 ");
-        int price = sc.nextInt();
         System.out.println("请输入商品库存");
         int number = sc.nextInt();
-        return goodsDaoOrder.insertGood(list,name,price,number);
+        return goodsDaoOrder.insertGood(list,name,number);
     }
 
     //删除商品

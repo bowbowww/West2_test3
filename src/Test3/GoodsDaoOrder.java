@@ -29,6 +29,7 @@ public class GoodsDaoOrder {
                 Good g = new Good();
                 g.setId(rs.getInt(1));
                 g.setName(rs.getString(2));
+                g.setPrice(rs.getInt(3));
                 g.setNumber(rs.getInt(4));
                 goods.add(g);
             }
@@ -144,7 +145,7 @@ public class GoodsDaoOrder {
         }
     }
 
-    public ArrayList<Good> insertGood(ArrayList<Good> goods, String name, int price, int number) {
+    public ArrayList<Good> insertGood(ArrayList<Good> goods, String name, int number) {
         Connection conn = null;
         PreparedStatement ps = null;
         PreparedStatement ps1 = null;
@@ -161,12 +162,21 @@ public class GoodsDaoOrder {
             }
             /*判断商品堆中是否存在该商品*/
             if (flag) {
+                String ss = "SELECT good_number FROM goods WHERE good_name = " + '"' + name + '"';
+                ps1 = JdbcUtil.getPreparedStatement(ss, conn);
+                rs = ps1.executeQuery();
+                int num = rs.getInt("good_number");
+                number += num;
                 goods.get(index).setNumber(number);
-                String s = "UPDATE goods SET good_number = " + number + "where goods_name = " + name;
+                String s = "UPDATE goods SET good_number = " + number + " where good_name = " + '"' + name + '"';
                 ps = JdbcUtil.getPreparedStatement(s, conn);
                 ps.executeUpdate();
+                System.out.println("更新库存成功");
                 return goods;
             } else {
+                Scanner sc = new Scanner(System.in);
+                System.out.println("请输入导入商品的价格 ");
+                int price = sc.nextInt();
                 //获取最大商品id序号,为了下一个商品插入时可以往后延续
                 String s = "INSERT INTO goods (good_id,good_name,good_price,good_number) VALUES(?,?,?,?)";
                 String s1 = "SELECT MAX(good_id) FROM goods";
@@ -180,7 +190,6 @@ public class GoodsDaoOrder {
                     System.out.println("导入商品id为 " + id);
                 }
                 ps.setInt(1, id);
-                Scanner sc = new Scanner(System.in);
                 //实例化Good对象,为了更新Good类的动态数组
                 Good g = new Good();
                 System.out.println("导入商品名称为" + name);
@@ -281,6 +290,8 @@ public class GoodsDaoOrder {
             a:
             while (true) {
                 String name = sc.next();
+                String s = "UPDATE goods SET good_number = good_number - 1 WHERE good_name = " + '"' + name + '"';
+                JdbcUtil.executeUpdate(conn, s);
                 /*将当前的时间转化为string的形式*/
                 Date currentTime = new Date();
                 SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
@@ -309,9 +320,9 @@ public class GoodsDaoOrder {
                     for (int i = 0; i < list1.size(); i++) {
                         goods[i] = list1.get(i);
                         java.sql.Date date = new java.sql.Date(currentTime.getTime());
-                        String s = "INSERT INTO orders (`order_id`,`good_id`,`order_time`,`order_price`) \n" +
+                        String ss = "INSERT INTO orders (`order_id`,`good_id`,`order_time`,`order_price`) \n" +
                                 "VALUES(" + id + "," + goods[i].getId() + ",'" + date + "'," + sum + ")";
-                        ps = JdbcUtil.getPreparedStatement(s, conn);
+                        ps = JdbcUtil.getPreparedStatement(ss, conn);
                         ps.executeUpdate();
 
                     }
@@ -388,14 +399,18 @@ public class GoodsDaoOrder {
         try {
             conn = JdbcUtil.getConnection();
             /*在商品堆中找到商品*/
-            boolean flag = false, flag1 = false;
+            boolean flag = false, flag1 = false, flag2 = false;
             Good good = new Good();
             Order order = new Order();
             for (int i = 0; i < goods.size(); i++) {
                 if (goods.get(i).getName().equals(name)) {
                     good = goods.get(i);
                     flag = true;
+                    if (goods.get(i).getNumber() != 0) {
+                        flag2 = true;
+                    }
                 }
+
             }
             if (!flag) {
                 System.out.println("您输入的商品有误");
@@ -410,6 +425,10 @@ public class GoodsDaoOrder {
             }
             if (!flag1) {
                 System.out.println("您输入的订单有误");
+                return null;
+            }
+            if (!flag2) {
+                System.out.println("您输入的商品已经没有库存了");
                 return null;
             }
             int goodId = good.getId();
