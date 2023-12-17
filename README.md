@@ -24,8 +24,8 @@
 5. ***insertOrder(ArrayList<Good> list, ArrayList<Order> orders)***:该方法作用为 向订单堆中添加新的订单(用sql中MAX(order_id)获取最大订单号id,为了插入时订单号可以向下延,续通过循环不断地获取想要购买的商品,最后通过输入'e'退出选购)
 6. ***queryOneOrder(int id)***:该方法作用为 查询单个订单(通过Scanner获取订单id,通过联表查询的方法,同时获取全部的订单和商品的信息)
 7. ***queryOrder()***:该方法作用为 查询全部订单(通过联表查询的方法,同时获取全部的订单和商品的信息)
-8. ***insertOrderGood(ArrayList<Order> orders, ArrayList<Good> goods, int id, String name)***:该方法作用为 增添某订单中的商品(通过商品名name在商品堆中找到商品,通过订单id在订单堆中找到订单,向该订单中添加该商品,添加完订单中的商品后,更新价格)
-9. ***deleteOrderGood(ArrayList<Order> orders, int id, String name)***:该方法作用为 删除某订单中商品(通过商品名name在商品堆中找到商品,通过订单id在订单堆中找到订单,在该订单中删除该商品,删除完订单中的商品后,更新价格)
+8. ***insertOrderGood(ArrayList<Order> orders, ArrayList<Good> goods, int id, String name)***:该方法作用为 增添某订单中的商品(通过商品名name在商品堆中找到商品,通过订单id在订单堆中找到订单,向该订单中添加该商品,添加完订单中的商品后,更新价格,数量)
+9. ***returnOrderGood(ArrayList<Order> orders, int id, String name)***:该方法作用为 退回某订单中商品(通过商品名name在商品堆中找到商品,通过订单id在订单堆中找到订单,在该订单中删除该商品,删除完订单中的商品后,更新价格,数量)
 10. ***updatePrice(ArrayList<Order> orders)***:该方法作用为 更新订单中价格(将各个订单中的价格重新相加,刷新)
 11. ***queryGood()***:该方法作用为 查询所有商品信息
 
@@ -33,9 +33,9 @@
 无亮点,纯基础,打牢了未来才能有亮点
 
 #### 项目待改进点:
-1. 在删除某订单中商品的方法中，不能只删除该订单中的指定数量的指定商品，而是会删除该商品的全部数量
+1. ~~在删除某订单中商品的方法中，不能只删除该订单中的指定数量的指定商品，而是会删除该商品的全部数量~~(**将其设为了清空商品方法**)
 2. 在最初代码阶段没有思考清楚数据库与java之间的关系，导致代码过于复杂，从实例类和数据库两个层面同时进行了，如果只用sql语言调用的话能缩减大量的代码
-3. 没有考虑到订单外键上的商品无法删除,应该引入商品数量,但是商品上没有考虑数量问题,只能单个输入,使订单,商品上过于复杂繁琐,所以还需要进行整体上的修改
+3. ~~没有考虑到订单外键上的商品无法删除,应该引入商品数量,但是商品上没有考虑数量问题,只能单个输入,使订单,商品上过于复杂繁琐,所以还需要进行整体上的修改~~(**已完成修改,引入了商品数量**)
 
 #### 项目如何启动:
-1. 需要有数据库的两张表goods和orders，goods表包含good_id,good_name,good_price,good_number分别代表商品的id，名称，价格，orders表包含order_id,good_id,order_time,order_price,id分别代表订单id,商品id,订单下单时间,订单总价,主键id,其中orders中添加外键约束依赖于表 goods 的主键 good_id
+1. 需要有数据库的两张表goods和orders，goods表包含good_id,good_name,good_price,good_number分别代表商品的id，名称，价格以及数量;orders表包含order_id,good_id,order_time,order_price,id分别代表订单id,商品id,订单下单时间,订单总价,主键id,其中orders中添加外键约束依赖于表 goods 的主键 good_id
