@@ -1,4 +1,8 @@
-package Test3;
+package Test3.Test;
+
+import Test3.dao.GoodDao;
+import Test3.dao.OrderDao;
+import Test3.service.OrderService;
 
 import java.util.*;
 
@@ -8,9 +12,9 @@ public class Test {
         OrderService orderService = new OrderService();
         Scanner sc = new Scanner(System.in);
         //从数据库中导出物品信息
-        ArrayList<Good> goods = orderService.outGoodsInfo();
+        ArrayList<GoodDao> goods = orderService.outGoodsInfo();
         //从数据库中导出订单信息
-        ArrayList<Order> orders = orderService.outOrdersInfo(goods);
+        ArrayList<OrderDao> orders = orderService.outOrdersInfo(goods);
         while (true) {
             System.out.println("请输入你想进行的操作: " + "\r\n"
                     + "1: 插入商品" + "\r\n"

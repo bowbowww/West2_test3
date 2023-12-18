@@ -1,6 +1,6 @@
-package Test3;
+package Test3.dao;
 
-public class Good {
+public class GoodDao {
     private int id;
     private String name;
     private int price;
@@ -8,10 +8,10 @@ public class Good {
 
 
 
-    public Good() {
+    public GoodDao() {
     }
 
-    public Good(int id, String name, int price,int number) {
+    public GoodDao(int id, String name, int price, int number) {
         this.id = id;
         this.name = name;
         this.price = price;

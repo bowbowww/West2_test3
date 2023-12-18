@@ -1,15 +1,17 @@
-package Test3;
+package Test3.dao;
 
-public class Order {
+import Test3.dao.GoodDao;
+
+public class OrderDao {
     private int id;
-    private Good[]goods;
+    private GoodDao[]goods;
     private String time;
     private int price;
 
-    public Order() {
+    public OrderDao() {
     }
 
-    public Order(int id, Good[] goods, String time, int price) {
+    public OrderDao(int id, GoodDao[] goods, String time, int price) {
         this.id = id;
         this.goods = goods;
         this.time = time;
@@ -24,11 +26,11 @@ public class Order {
         this.id = id;
     }
 
-    public Good[] getGoods() {
+    public GoodDao[] getGoods() {
         return goods;
     }
 
-    public void setGoods(Good[] goods) {
+    public void setGoods(GoodDao[] goods) {
         this.goods = goods;
     }
 

@@ -1,24 +1,28 @@
-package Test3;
+package Test3.service;
+
+import Test3.dao.GoodDao;
+import Test3.dao.OrderDao;
+import Test3.domain.GoodsDomainOrder;
 
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class OrderService {
 
-    GoodsDaoOrder goodsDaoOrder = new GoodsDaoOrder();
+    GoodsDomainOrder goodsDaoOrder = new GoodsDomainOrder();
 
     //从数据库中导出物品信息
-    public ArrayList<Good> outGoodsInfo(){
+    public ArrayList<GoodDao> outGoodsInfo(){
         return goodsDaoOrder.outGoods();
     }
 
     //从数据库中导出订单信息
-    public ArrayList<Order> outOrdersInfo(ArrayList<Good> list){
+    public ArrayList<OrderDao> outOrdersInfo(ArrayList<GoodDao> list){
         return goodsDaoOrder.outOrders(list);
     }
 
     //插入商品功能
-    public ArrayList<Good> insertGoodInfo(ArrayList<Good> list){
+    public ArrayList<GoodDao> insertGoodInfo(ArrayList<GoodDao> list){
         Scanner sc = new Scanner(System.in);
         System.out.println("请输入导入商品的名称");
         String name = sc.next();
@@ -28,7 +32,7 @@ public class OrderService {
     }
 
     //删除商品
-    public ArrayList<Good> deleteGoodInfo(ArrayList<Good> list){
+    public ArrayList<GoodDao> deleteGoodInfo(ArrayList<GoodDao> list){
         Scanner sc = new Scanner(System.in);
         System.out.println("请输入想要删除商品的名称");
         String name = sc.next();
@@ -36,7 +40,7 @@ public class OrderService {
     }
 
     //插入订单
-    public ArrayList<Order> insertOrderInfo(ArrayList<Good> list, ArrayList<Order>orders){
+    public ArrayList<OrderDao> insertOrderInfo(ArrayList<GoodDao> list, ArrayList<OrderDao>orders){
         return goodsDaoOrder.insertOrder(list,orders);
     }
 
@@ -54,7 +58,7 @@ public class OrderService {
     }
 
     //增添某订单中的商品
-    public ArrayList<Order> insertOrderGoodInfo(ArrayList<Order> orders, ArrayList<Good> goods){
+    public ArrayList<OrderDao> insertOrderGoodInfo(ArrayList<OrderDao> orders, ArrayList<GoodDao> goods){
         Scanner sc = new Scanner(System.in);
         System.out.println("请输入想要修改的订单id");
         int id = sc.nextInt();
@@ -64,7 +68,7 @@ public class OrderService {
     }
 
     //删除某订单中商品
-    public void returnOrderGoodInfo(ArrayList<Order> orders, ArrayList<Good> goods) {
+    public void returnOrderGoodInfo(ArrayList<OrderDao> orders, ArrayList<GoodDao> goods) {
         Scanner sc = new Scanner(System.in);
         System.out.println("请输入想要删除订单的id");
         int id = sc.nextInt();
