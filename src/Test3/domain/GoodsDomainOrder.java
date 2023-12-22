@@ -324,6 +324,7 @@ public class GoodsDomainOrder {
                             break;
                         } else {
                             System.out.println("您选购的商品已没有库存，如需继续选购，请继续输入商品名称（输入 e 退出选购）");
+                            continue a;
                         }
                     }
                 }
