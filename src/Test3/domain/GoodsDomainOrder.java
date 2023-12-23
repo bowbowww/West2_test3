@@ -175,9 +175,10 @@ public class GoodsDomainOrder {
                 }
                 number += num;
                 goods.get(index).setNumber(number);
-                String s = "UPDATE goods SET good_number = " + number + " where good_name = ?";
+                String s = "UPDATE goods SET good_number = ? where good_name = ?";
                 ps = JdbcUtil.getPreparedStatement(s, conn);
-                ps.setString(1,name);
+                ps.setString(2,name);
+                ps.setInt(1,number);
                 ps.executeUpdate();
                 System.out.println("更新库存成功");
                 JdbcUtil.commitTransaction(conn);
