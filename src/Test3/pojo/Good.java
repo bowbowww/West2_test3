@@ -1,6 +1,6 @@
-package Test3.dao;
+package Test3.pojo;
 
-public class GoodDao {
+public class Good {
     private int id;
     private String name;
     private int price;
@@ -8,10 +8,10 @@ public class GoodDao {
 
 
 
-    public GoodDao() {
+    public Good() {
     }
 
-    public GoodDao(int id, String name, int price, int number) {
+    public Good(int id, String name, int price, int number) {
         this.id = id;
         this.name = name;
         this.price = price;

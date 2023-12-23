@@ -1,7 +1,7 @@
 package Test3.domain;
 
-import Test3.dao.GoodDao;
-import Test3.dao.OrderDao;
+import Test3.pojo.Good;
+import Test3.pojo.Order;
 import Test3.util.JdbcUtil;
 
 import java.sql.Connection;
@@ -15,20 +15,20 @@ import java.util.Scanner;
 public class GoodsDomainOrder {
     //数据库层方法
     //从数据库中导出物品信息
-    public ArrayList<GoodDao> outGoods() {
+    public ArrayList<Good> outGoods() {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
             conn = JdbcUtil.getConnection();
-            ArrayList<GoodDao> goods = new ArrayList<>();
+            ArrayList<Good> goods = new ArrayList<>();
             String s = "SELECT `good_id`,`good_name`,`good_price`,`good_number` FROM goods";
             ps = JdbcUtil.getPreparedStatement(s, conn);
             rs = ps.executeQuery();
 
             //运用查询将商品导入与商品相关的arrayList
             while (rs.next()) {
-                GoodDao g = new GoodDao();
+                Good g = new Good();
                 g.setId(rs.getInt(1));
                 g.setName(rs.getString(2));
                 g.setPrice(rs.getInt(3));
@@ -49,7 +49,7 @@ public class GoodsDomainOrder {
     }
 
     //从数据库中导出订单信息
-    public ArrayList<OrderDao> outOrders(ArrayList<GoodDao> list) {
+    public ArrayList<Order> outOrders(ArrayList<Good> list) {
         Connection conn = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -58,10 +58,10 @@ public class GoodsDomainOrder {
             String s = "SELECT `order_id`,`good_id`,`order_time`,`order_price` FROM orders ORDER BY order_id ASC";
             ps = JdbcUtil.getPreparedStatement(s, conn);
             rs = ps.executeQuery();
-            ArrayList<GoodDao> g = new ArrayList<>();
-            ArrayList<OrderDao> orders = new ArrayList<>();
+            ArrayList<Good> g = new ArrayList<>();
+            ArrayList<Order> orders = new ArrayList<>();
             ArrayList<Object[]> l = new ArrayList<>();
-            OrderDao order = new OrderDao();
+            Order order = new Order();
 
             /*
             将查询到的信息导入动态数组,
@@ -100,7 +100,7 @@ public class GoodsDomainOrder {
                  */
                 if (i != l.size() - 1) {
                     if (orderId != (int) l.get(i + 1)[0]) {
-                        GoodDao[] goods = new GoodDao[g.size()];
+                        Good[] goods = new Good[g.size()];
                         for (int i1 = 0; i1 < goods.length; i1++) {
                             goods[i1] = g.get(i1);
                         }
@@ -110,12 +110,12 @@ public class GoodsDomainOrder {
                         order.setPrice(orderPrice);
                         orders.add(order);
                         //在下一个物品不为同一个订单前,将订单类导入orders动态数组后,将Order实例化对象与good类动态数组清空
-                        order = new OrderDao();
+                        order = new Order();
                         g = new ArrayList<>();
 
                     }
                 } else {
-                    GoodDao[] goods = new GoodDao[g.size()];
+                    Good[] goods = new Good[g.size()];
                     for (int i1 = 0; i1 < goods.length; i1++) {
                         goods[i1] = g.get(i1);
                     }
@@ -128,8 +128,8 @@ public class GoodsDomainOrder {
             }
             //打印
             for (int i = 0; i < orders.size(); i++) {
-                OrderDao order1 = orders.get(i);
-                GoodDao[] goods = order1.getGoods();
+                Order order1 = orders.get(i);
+                Good[] goods = order1.getGoods();
                 System.out.println("当前店铺订单为：");
                 System.out.println("订单id：" + order1.getId() + " 订单价格：" + order1.getPrice() + " 订单时间：" + order1.getTime());
                 System.out.println("订单中商品信息为：");
@@ -147,7 +147,7 @@ public class GoodsDomainOrder {
         }
     }
 
-    public ArrayList<GoodDao> insertGood(ArrayList<GoodDao> goods, String name, int number) {
+    public ArrayList<Good> insertGood(ArrayList<Good> goods, String name, int number) {
         Connection conn = null;
         PreparedStatement ps = null;
         PreparedStatement ps1 = null;
@@ -198,7 +198,7 @@ public class GoodsDomainOrder {
                 }
                 ps.setInt(1, id);
                 //实例化Good对象,为了更新Good类的动态数组
-                GoodDao g = new GoodDao();
+                Good g = new Good();
                 System.out.println("导入商品名称为" + name);
                 ps.setString(2, name);
                 g.setName(name);
@@ -244,7 +244,7 @@ public class GoodsDomainOrder {
 
     }
 
-    public ArrayList<GoodDao> deleteGood(ArrayList<GoodDao> list, String name) {
+    public ArrayList<Good> deleteGood(ArrayList<Good> list, String name) {
         Connection conn = null;
         PreparedStatement ps = null;
         try {
@@ -279,15 +279,15 @@ public class GoodsDomainOrder {
         }
     }
 
-    public ArrayList<OrderDao> insertOrder(ArrayList<GoodDao> list, ArrayList<OrderDao> orders)  {
+    public ArrayList<Order> insertOrder(ArrayList<Good> list, ArrayList<Order> orders)  {
         Connection conn = null;
         PreparedStatement ps = null;
         try {
             Scanner sc = new Scanner(System.in);
             conn = JdbcUtil.getConnection();
             JdbcUtil.beginTransaction(conn);
-            OrderDao order = new OrderDao();
-            ArrayList<GoodDao> list1 = new ArrayList<>();
+            Order order = new Order();
+            ArrayList<Good> list1 = new ArrayList<>();
 
             /*获取最大订单号id,为了插入时订单号可以向下延续*/
             int sum = 0, id = 0;
@@ -314,7 +314,7 @@ public class GoodsDomainOrder {
                 boolean flog = false;
                 /*判断商品列表中是否有顾客想要购买的商品*/
                 for (int i = 0; i < list.size(); i++) {
-                    GoodDao g = list.get(i);
+                    Good g = list.get(i);
                     if (g.getName().equals(name)) {
                         if (g.getNumber() != 0) {
                             sum += g.getPrice();
@@ -330,7 +330,7 @@ public class GoodsDomainOrder {
                 }
                 /*将增添订单导入数据库中*/
                 if (name.equals("e")) {
-                    GoodDao[] goods = new GoodDao[list1.size()];
+                    Good[] goods = new Good[list1.size()];
                     for (int i = 0; i < list1.size(); i++) {
                         goods[i] = list1.get(i);
                         java.sql.Date date = new java.sql.Date(currentTime.getTime());
@@ -410,15 +410,15 @@ public class GoodsDomainOrder {
         }
     }
 
-    public ArrayList<OrderDao> insertOrderGood(ArrayList<OrderDao> orders, ArrayList<GoodDao> goods, int id, String name) {
+    public ArrayList<Order> insertOrderGood(ArrayList<Order> orders, ArrayList<Good> goods, int id, String name) {
         Connection conn = null;
         try {
             conn = JdbcUtil.getConnection();
             JdbcUtil.beginTransaction(conn);
             /*在商品堆中找到商品*/
             boolean flag = false, flag1 = false, flag2 = false;
-            GoodDao good = new GoodDao();
-            OrderDao order = new OrderDao();
+            Good good = new Good();
+            Order order = new Order();
             for (int i = 0; i < goods.size(); i++) {
                 if (goods.get(i).getName().equals(name)) {
                     good = goods.get(i);
@@ -453,8 +453,8 @@ public class GoodsDomainOrder {
             int goodId = good.getId();
             String time = order.getTime();
             /*添加加入的商品到订单中*/
-            GoodDao[] goods1 = order.getGoods();
-            GoodDao[] goods2 = new GoodDao[goods1.length + 1];
+            Good[] goods1 = order.getGoods();
+            Good[] goods2 = new Good[goods1.length + 1];
             for (int i = 0; i < goods1.length; i++) {
                 goods2[i] = goods1[i];
             }
@@ -488,14 +488,14 @@ public class GoodsDomainOrder {
     }
 
 
-    public ArrayList<OrderDao> returnOrderGood(ArrayList<OrderDao> orders, ArrayList<GoodDao> goods, int id, String name) {
+    public ArrayList<Order> returnOrderGood(ArrayList<Order> orders, ArrayList<Good> goods, int id, String name) {
         Connection conn = null;
         try {
             boolean flag = false, flag1 = false;
             conn = JdbcUtil.getConnection();
             JdbcUtil.beginTransaction(conn);
-            OrderDao order;
-            GoodDao[] goods1 = new GoodDao[0];
+            Order order;
+            Good[] goods1 = new Good[0];
             for (int i = 0; i < orders.size(); i++) {
                 if (orders.get(i).getId() == id) {
                     flag1 = true;
@@ -510,13 +510,13 @@ public class GoodsDomainOrder {
                     break;
                 }
             }
-            ArrayList<GoodDao> goodArrayList = new ArrayList<>();
+            ArrayList<Good> goodArrayList = new ArrayList<>();
             for (int j = 0; j < goods1.length; j++) {
                 if (!goods1[j].getName().equals(name)) {
                     goodArrayList.add(goods1[j]);
                 }
             }
-            GoodDao[] goods2 = new GoodDao[goodArrayList.size()];
+            Good[] goods2 = new Good[goodArrayList.size()];
             for (int i = 0; i < goodArrayList.size(); i++) {
                 goods2[i] = goodArrayList.get(i);
             }
@@ -576,7 +576,7 @@ public class GoodsDomainOrder {
         }
     }
 
-    public ArrayList<OrderDao> updatePrice(ArrayList<OrderDao> orders, ArrayList<GoodDao> good, Connection conn) {
+    public ArrayList<Order> updatePrice(ArrayList<Order> orders, ArrayList<Good> good, Connection conn) {
 //        Connection conn = null;
         try {
 //            conn = JdbcUtil.getConnection();
@@ -586,7 +586,7 @@ public class GoodsDomainOrder {
                 for (int j = 0; j < orders.size(); j++) {
                     /*通过循环获取每个订单中的商品单*/
                     if (orders.get(j).getId() == i) {
-                        GoodDao[] goods = orders.get(j).getGoods();
+                        Good[] goods = orders.get(j).getGoods();
                         /*设置goods的商品值*/
                         for (int i1 = 0; i1 < goods.length; i1++) {
                             for (int i2 = 0; i2 < good.size(); i2++) {
