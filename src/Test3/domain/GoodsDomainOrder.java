@@ -166,16 +166,18 @@ public class GoodsDomainOrder {
             /*判断商品堆中是否存在该商品*/
             if (flag) {
                 int num = 0;
-                String ss = "SELECT good_number FROM goods WHERE good_name = " + '"' + name + '"';
+                String ss = "SELECT good_number FROM goods WHERE good_name = ?";
                 ps1 = JdbcUtil.getPreparedStatement(ss, conn);
+                ps1.setString(1,name);
                 rs = ps1.executeQuery();
                 while(rs.next()){
                     num = rs.getInt("good_number");
                 }
                 number += num;
                 goods.get(index).setNumber(number);
-                String s = "UPDATE goods SET good_number = " + number + " where good_name = " + '"' + name + '"';
+                String s = "UPDATE goods SET good_number = " + number + " where good_name = ?";
                 ps = JdbcUtil.getPreparedStatement(s, conn);
+                ps.setString(1,name);
                 ps.executeUpdate();
                 System.out.println("更新库存成功");
                 JdbcUtil.commitTransaction(conn);
