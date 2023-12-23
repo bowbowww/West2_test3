@@ -1,7 +1,7 @@
 package Test3.domain;
 
-import Test3.pojo.Good;
-import Test3.pojo.Order;
+import Test3.dao.Good;
+import Test3.dao.Order;
 import Test3.util.JdbcUtil;
 
 import java.sql.Connection;

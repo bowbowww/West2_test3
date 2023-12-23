@@ -1,4 +1,4 @@
-package Test3.pojo;
+package Test3.dao;
 
 public class Good {
     private int id;
